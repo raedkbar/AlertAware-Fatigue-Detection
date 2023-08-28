@@ -4,6 +4,7 @@ import requests
 TOKEN = ''
 NGROK_URL = ''
 CHAT_ID = ''
+
 TELEGRAM_INIT_WEBHOOK_URL = 'https://api.telegram.org/bot{}/setWebhook?url={}/message'.format(TOKEN, NGROK_URL)
 
 # Create a Flask app
@@ -16,13 +17,10 @@ def sanity():
     return "Server is running"
 
 
-@app.route('/message', methods=["POST", "GET"])
+@app.route('/message', methods=["POST"])
 def handle_message():
     msg = request.form.get('text')
-    if msg:
-        print(msg)
-    else:
-        msg = 'got it'
+    msg = msg if msg else 'got it'
     print(msg)
     res = requests.get("https://api.telegram.org/bot{}/sendMessage?chat_id={}&text={}".format(TOKEN, CHAT_ID, msg))
     return Response("success")
