@@ -14,6 +14,10 @@ CROPS_PATH = DEFAULT_BASE_DIR + "/crops"
 
 
 class DataProcessor:
+    """
+    Class for processing image data, detecting eyes, and cropping them.
+    """
+
     def __init__(self):
         self.detector = dlib.get_frontal_face_detector()
         self.predictor = dlib.shape_predictor('shape_predictor_68_face_landmarks.dat')
@@ -21,6 +25,12 @@ class DataProcessor:
         self.base_dir = DEFAULT_BASE_DIR
 
     def process_data(self, directory_path):
+        """
+        Process image data in a directory, detect and crop eyes.
+
+        Args:
+            directory_path (str): Path to the directory containing images to process.
+        """
         directory_path = Path(directory_path)
         if directory_path.exists():
             file_list: List[Path] = list(directory_path.rglob(IMAGE_FORMAT))
@@ -31,12 +41,25 @@ class DataProcessor:
                 self.delete_original_image(image_path)
 
     def delete_original_image(self, image_path):
+        """
+        Delete the original image file.
+
+        Args:
+            image_path (str): Path to the original image to delete.
+        """
         try:
             os.remove(image_path)
         except Exception as e:
             print(f"Failed to delete original image: {image_path}\nError: {e}")
 
     def detect_and_crop_eyes(self, image_path, image_index):
+        """
+        Detect faces and crop eyes in an image.
+
+        Args:
+            image_path (str): Path to the image to process.
+            image_index (int): Index of the image in the dataset.
+        """
         image = cv2.imread(image_path)
         gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
@@ -66,6 +89,12 @@ class DataProcessor:
 
 
 def main(argv=None):
+    """
+    Main function for processing images and cropping eyes.
+
+    Args:
+        argv (list): List of command-line arguments.
+    """
     parser = argparse.ArgumentParser("Test eyes detection")
     parser.add_argument('-i', '--image', type=str, help='Path to an image')
     parser.add_argument('-d', '--dir', type=str, help='Directory to scan images in')
