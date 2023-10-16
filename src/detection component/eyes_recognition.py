@@ -1,10 +1,10 @@
 import argparse
 import os
-from pathlib import Path
-from typing import List
-
 import cv2
 import dlib
+
+from pathlib import Path
+from typing import List
 from datetime import datetime
 
 DEFAULT_BASE_DIR: str = 'resources'
@@ -36,7 +36,6 @@ class DataProcessor:
         except Exception as e:
             print(f"Failed to delete original image: {image_path}\nError: {e}")
 
-
     def detect_and_crop_eyes(self, image_path, image_index):
         image = cv2.imread(image_path)
         gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -47,31 +46,24 @@ class DataProcessor:
         for i, face in enumerate(faces):
             landmarks = self.predictor(gray_image, face)
 
-            # Calculate bounding boxes for both eyes with checks
-            left_eye_top_left = (max(0, landmarks.part(36).x - 10), max(0, landmarks.part(37).y - 20))
-            left_eye_bottom_right = (
-            min(image.shape[1], landmarks.part(39).x + 10), min(image.shape[0], landmarks.part(41).y + 10))
+            # Define bounding boxes for both eyes
+            eye_boxes = []
+            for eye_points in [(36, 39), (42, 45)]:
+                left_x = max(0, landmarks.part(eye_points[0]).x - 10)
+                top_y = max(0, landmarks.part(eye_points[1]).y - 20)
+                right_x = min(image.shape[1], landmarks.part(eye_points[1]).x + 10)
+                bottom_y = min(image.shape[0], landmarks.part(eye_points[1]).y + 10)
+                eye_boxes.append((left_x, top_y, right_x, bottom_y))
 
-            right_eye_top_left = (max(0, landmarks.part(42).x - 10), max(0, landmarks.part(43).y - 20))
-            right_eye_bottom_right = (
-            min(image.shape[1], landmarks.part(45).x + 10), min(image.shape[0], landmarks.part(47).y + 10))
             timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-            if left_eye_top_left[0] < left_eye_bottom_right[0] and left_eye_top_left[1] < left_eye_bottom_right[1]:
-                # Crop and resize left eye
-                left_eye = image[left_eye_top_left[1]:left_eye_bottom_right[1],
-                           left_eye_top_left[0]:left_eye_bottom_right[0]]
-                left_eye_resized = cv2.resize(left_eye, (64, 64))
-                # Save the cropped and resized left eye
+            for eye_type, (left_x, top_y, right_x, bottom_y) in zip(["left", "right"], eye_boxes):
+                if left_x < right_x and top_y < bottom_y:
+                    # Crop and resize the eye
+                    eye = image[top_y:bottom_y, left_x:right_x]
+                    eye_resized = cv2.resize(eye, (64, 64))
+                    # Save the cropped and resized eye
+                    cv2.imwrite(CROPS_PATH + f"/{eye_type}_eye_{image_index}_{timestamp}.jpg", eye_resized)
 
-                cv2.imwrite(CROPS_PATH + f"/left_eye_{image_index}_{timestamp}.jpg", left_eye_resized)
-
-            if right_eye_top_left[0] < right_eye_bottom_right[0] and right_eye_top_left[1] < right_eye_bottom_right[1]:
-                # Crop and resize right eye
-                right_eye = image[right_eye_top_left[1]:right_eye_bottom_right[1],
-                            right_eye_top_left[0]:right_eye_bottom_right[0]]
-                right_eye_resized = cv2.resize(right_eye, (64, 64))
-                # Save the cropped and resized right eye
-                cv2.imwrite(CROPS_PATH + f"/right_eye_{image_index}_{timestamp}.jpg", right_eye_resized)
 
 def main(argv=None):
     parser = argparse.ArgumentParser("Test eyes detection")
