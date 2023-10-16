@@ -1,12 +1,10 @@
 import requests
+import time
 
 from camera import ContinuousPhotoCapture
 from eyes_recognition import DataProcessor
 from run_model_on_crops import EyeClassifier
-import time
 from pathlib import Path
-import keyboard
-import time
 from datetime import datetime, timedelta
 
 ALERT_MSG_TEMPLATE = "Fatigue Alert!\nOur fatigue detection system has detected signs of employee fatigue. It's crucial to take immediate action to ensure the safety of the employee and those around them.\n" \

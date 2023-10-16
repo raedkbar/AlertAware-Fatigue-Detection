@@ -1,8 +1,9 @@
-from keras.models import load_model
 import os
-from PIL import Image
 import numpy as np
 import matplotlib.pyplot as plt
+
+from keras.models import load_model
+from PIL import Image
 
 
 class EyeClassifier:
