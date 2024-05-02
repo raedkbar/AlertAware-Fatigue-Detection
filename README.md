@@ -1,6 +1,3 @@
-Certainly! Here's a `README.md` file for your project. You can use this Markdown content as your project's README:
-
-
 # Fatigue Detection System
 
 The Fatigue Detection System is a computer vision project designed to detect signs of employee fatigue through eye monitoring. This system captures images from a camera, processes them to detect eyes, and classifies them as open or closed, enabling the identification of fatigue.
